@@ -19,7 +19,7 @@ class MixedOp(nn.Module):
       self._ops.append(op)
 
   def forward(self, x, weights):
-    return sum(w * op(x) for w, op in zip(weights, self._ops))
+    return sum(w * op(x) for w, op in zip(weights, self._ops))  # 所以还是加权相加，但是是是通过softmax函数确保了最后只有少量可以胜出！行142中是每个node只选择两个最大可能性的展示。
 
 
 class Cell(nn.Module):
@@ -136,7 +136,7 @@ class Network(nn.Module):
       gene = []
       n = 2
       start = 0
-      for i in range(self._steps):
+      for i in range(self._steps):  # 当前规则是这样的，两个输入作为节点0和1，外加四个node构成全部cell，gene每两个pair对应一个node，每个pair的第二项就是该node连接的上一个node或者input的序号（0-该node-1中选择两个），所以每个node可能的连接依次加1，每个连接都在几种primitive中选择。
         end = start + n
         W = weights[start:end].copy()
         edges = sorted(range(i + 2), key=lambda x: -max(W[x][k] for k in range(len(W[x])) if k != PRIMITIVES.index('none')))[:2]
